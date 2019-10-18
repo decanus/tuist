@@ -69,7 +69,7 @@ final class LinkGenerator: LinkGenerating {
     func generateLinks(target: Target,
                        pbxTarget: PBXTarget,
                        pbxproj: PBXProj,
-                       pbxProject: PBXProject,
+                       pbxProject _: PBXProject,
                        fileElements: ProjectFileElements,
                        path: AbsolutePath,
                        sourceRootPath: AbsolutePath,
@@ -137,34 +137,29 @@ final class LinkGenerator: LinkGenerating {
     func generatePackages(target: Target,
                           pbxTarget: PBXTarget,
                           pbxproj: PBXProj) throws {
-
         for dependency in target.dependencies {
-            
             switch dependency {
             case let .package(product: product):
-                
+
                 let productDependency = XCSwiftPackageProductDependency(productName: product)
                 pbxproj.add(object: productDependency)
                 pbxTarget.packageProductDependencies.append(productDependency)
-                
+
                 // Build file
                 let buildFile = PBXBuildFile(product: productDependency)
                 pbxproj.add(object: buildFile)
-                
+
                 // Link the product
                 guard let frameworksBuildPhase = try pbxTarget.frameworksBuildPhase() else {
                     throw "No frameworks build phase"
                 }
-                
+
                 frameworksBuildPhase.files?.append(buildFile)
-                
+
             default:
                 break
             }
-            
         }
-        
-
     }
 
     func generateEmbedPhase(dependencies: [DependencyReference],
